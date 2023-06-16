@@ -3,6 +3,7 @@ import 'package:lesson_10/core/explicit_animations/like_animation.dart';
 import 'package:lesson_10/core/implicit_animations/animated_container.dart';
 import 'package:lesson_10/core/implicit_animations/animated_crossfade.dart';
 import 'package:lesson_10/core/implicit_animations/animated_switcher.dart';
+import 'package:lesson_10/core/implicit_animations/animated_size.dart';
 import 'package:lesson_10/core/navigation_animation/navigation_animation.dart';
 
 final List pages = [
@@ -19,6 +20,11 @@ final List pages = [
   {
     'title': 'AnimatedCrossFadeWidget',
     'page': const AnimatedCrossFadeWidget(),
+    'isNavigationAnimation': false,
+  },
+  {
+    'title': 'AnimatedSize',
+    'page': const AnimatedSizeWidget(),
     'isNavigationAnimation': false,
   },
   {
@@ -59,11 +65,16 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  final Widget _animatedContainer = const AnimatedContainerWidget();
-  final Widget _animatedSwitcher = const AnimatedSwitcherWidget();
-  final Widget _animatedCrossFade = const AnimatedCrossFadeWidget();
-  final Widget _animatedLike = const LikeAnimation();
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
+  late AnimationController controller;
+
+  @override
+  initState() {
+    super.initState();
+    controller = BottomSheet.createAnimationController(this);
+    controller.duration = const Duration(seconds: 1);
+    controller.reverseDuration = const Duration(seconds: 1);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,41 +83,57 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-          child: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: pages.length,
-              itemBuilder: (context, index) {
-                final page = pages[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  child: ListTile(
-                    onTap: () {
-                      if (!page['isNavigationAnimation']) {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => page['page'],
-                          ),
-                        );
-                      }
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: pages.length,
+                itemBuilder: (context, index) {
+                  final page = pages[index];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: ListTile(
+                      onTap: () {
+                        if (!page['isNavigationAnimation']) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => page['page'],
+                            ),
+                          );
+                        }
 
-                      if (page['isNavigationAnimation']) {
-                        Navigator.of(context).push(_createRoute());
-                      }
-                    },
-                    title: Text(page['title']),
-                    trailing: const Icon(
-                      Icons.arrow_right,
-                      size: 32,
+                        if (page['isNavigationAnimation']) {
+                          Navigator.of(context).push(_createRoute());
+                        }
+                      },
+                      title: Text(page['title']),
+                      trailing: const Icon(
+                        Icons.arrow_right,
+                        size: 32,
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
-          )
-        ],
-      )),
+                  );
+                },
+              ),
+            )
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.ads_click),
+        onPressed: () {
+          showModalBottomSheet(
+            transitionAnimationController: controller,
+            context: context,
+            builder: (BuildContext context) {
+              return const SizedBox(
+                height: 200,
+                child: Center(child: Text('Bottom sheet')),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

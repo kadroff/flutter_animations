@@ -37,7 +37,7 @@ class _LikeAnimationState extends State<LikeAnimation>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('AnimatedCrossFade example'),
+        title: const Text('Like animation example'),
       ),
       backgroundColor: Colors.grey[200],
       body: Center(
